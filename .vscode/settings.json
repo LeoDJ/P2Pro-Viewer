@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+    ],
+    "python.formatting.autopep8Args": [
+        "--max-line-length=140"
+    ]
+}
