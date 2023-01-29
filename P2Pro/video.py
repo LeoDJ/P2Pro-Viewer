@@ -10,7 +10,7 @@ P2Pro_fps = 25.0
 
 class Video:
     # queue 0 is for GUI, 1 is for recorder
-    frame_queue = [queue.Queue(3) for _ in range(2)]
+    frame_queue = [queue.Queue(1) for _ in range(2)]
     video_running = False
 
     @staticmethod
@@ -94,12 +94,14 @@ class Video:
 
             # convert buffers to numpy arrays
             yuv_picture = np.frombuffer(picture_data, dtype=np.uint8).reshape((P2Pro_resolution[1] // 2, P2Pro_resolution[0], 2))
+            rgb_picture = cv2.cvtColor(yuv_picture, cv2.COLOR_YUV2RGB_YUY2)
             thermal_picture_16 = np.frombuffer(thermal_data, dtype=np.uint16).reshape((P2Pro_resolution[1] // 2, P2Pro_resolution[0]))
 
             # pack parsed frame data into object
             frame_obj = {
                 "frame_num": frame_counter,
-                "picture_data": yuv_picture,
+                "rgb_data": rgb_picture,
+                "yuv_data": yuv_picture,
                 "thermal_data": thermal_picture_16
             }
 
