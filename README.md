@@ -53,7 +53,7 @@ Pergear also has shops for other countries, but I'm not sure if they're the chea
         - [ ] Metadata (rotation, camera settings, location?, etc)
     - [ ] Video
         - [x] MKV file with radiometry data as second lossless video track
-        - [ ] Audio
+        - [x] Audio
         - [ ] Metadata
         - [ ] Rotation (on-the-fly possible? :D)
         - [ ] Render overlays into video (scale, min/max/center temps, etc)

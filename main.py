@@ -14,8 +14,8 @@ try:
     while not vid.video_running:
         time.sleep(0.01)
 
-    rec = P2Pro.recorder.Recorder()
-    rec.start_rec(vid.frame_queue[1], "test")
+    rec = P2Pro.recorder.VideoRecorder(vid.frame_queue[1], "test")
+    rec.start()
 
     cam_cmd = P2Pro_CMD.P2Pro()
 
@@ -28,8 +28,8 @@ try:
     # cam_cmd.set_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL, 0)
     print(cam_cmd.get_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL))
 
-    time.sleep(3)
-    rec.stop_rec()
+    time.sleep(5)
+    rec.stop()
 
     while True:
         # print(vid.frame_queue[0].get(True, 2)) # test
