@@ -28,9 +28,12 @@ try:
     # cam_cmd.set_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL, 0)
     print(cam_cmd.get_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL))
 
+    time.sleep(3)
+    rec.stop_rec()
+
     while True:
         # print(vid.frame_queue[0].get(True, 2)) # test
-        time.sleep(1)
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Killing...")
