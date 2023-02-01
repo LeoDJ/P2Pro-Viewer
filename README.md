@@ -1,6 +1,7 @@
 # InfiRay P2 Pro Viewer
 
-[WIP]
+:warning: **[WIP]**  
+See [below](#roadmap) for a roadmap.
 
 This project aims to be an open-source image viewer and API for the InfiRay P2 Pro thermal camera module.
 
@@ -23,9 +24,66 @@ Also, the camera video stream needs to be opened first before using the script t
 Still needs to be tested, but should work™
 
 ## Where to buy
-The cheapest vendor in Germany appears to be Peargear. [Link to the product page](https://www.pergear.de/products/infiray-p2-pro?ref=067mg).
+The cheapest vendor in Germany appears to be Peargear. [Link to the product page](https://www.pergear.de/products/infiray-p2-pro?ref=067mg).  
+Pergear also has shops for other countries, but I'm not sure if they're the cheapest there.
 
 ## Additional Resources
 - [Review and teardown video by mikeselectricstuff](https://www.youtube.com/watch?v=YMQeXq1ujn0)
 - [Extensive review thread by Fraser](https://www.eevblog.com/forum/thermal-imaging/review-infiray-p2-pro-thermal-camera-dongle-for-android-mobile-phones/)
 - [General discussion thread with some interesting resources](https://www.eevblog.com/forum/thermal-imaging/infiray-and-their-p2-pro-discussion/)
+
+
+## Roadmap
+- [ ] USB Vendor Commands
+    - [x] Read/Write commands
+        - [x] "standard" cmd
+        - [x] "long" cmd
+        - [x] wait for camera ready
+    - [x] Pseudo color 
+    - [ ] NUC shutter control (auto/manual/trigger)
+    - [ ] High/low temperature range
+    - [ ] Other parameters (emissivity, distance, etc)
+    - [ ] Switch to actual raw sensor readings?
+    - [ ] Recalibrate lens?
+    - [ ] Remaining (less relevant) commands
+- [ ] Recording
+    - [ ] Still image
+        - [ ] JPEG and radiometry data in one file
+            - [ ] Standardized format? R-JPEG?
+        - [ ] Metadata (rotation, camera settings, location?, etc)
+    - [ ] Video
+        - [x] MKV file with radiometry data as second lossless video track
+        - [ ] Audio
+        - [ ] Metadata
+        - [ ] Rotation (on-the-fly possible? :D)
+        - [ ] Render overlays into video (scale, min/max/center temps, etc)
+        - [ ] Timelapse?
+        - [ ] Min/Max/Center temperature in subtitles? :D
+        - [ ] Standardized video format? (don't know any)
+    - [ ] Find / build tool to analyze recordings later (or export to other formats)
+    - [ ] Virtual webcam output with temperature scale overlays?
+- [ ] GUI
+    - [ ] Display video stream
+    - [ ] Overlays
+        - [ ] Temperature scale
+        - [ ] Min/max/center temperature
+        - [ ] Cursor hover temperature
+    - [ ] Palette selection
+    - [ ] Shutter control
+    - [ ] Gain selection (camera temperature range)
+    - [ ] Parameters (emissivity, distance, etc)
+    - [ ] Recording controls (take picture, start/stop video, recording indicator and time)
+    - [ ] Image rotation / flip
+    - [ ] Manually set min/max range (probably need to apply own pseudo color from raw temperature data)
+    - [ ] Own analysis controls (points, lines, rectangles, etc)
+    - [ ] Log measurements to CSV
+    - [ ] Plot measurements
+    - [ ] ...
+- [ ] Documentation
+    - [ ] How to use
+    - [ ] USB vendor command protocol
+    - [ ] My video format (if I don't find a more standardized one)
+    - [ ] P2Pro Android app JPEG file format, that has radiometry data embedded
+- Very long-term plans:
+    - Small device with a socket for the P2 Pro to convert it into a hand-held device
+    - Android App
