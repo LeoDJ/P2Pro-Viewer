@@ -1,10 +1,15 @@
 import threading
 import time
 import os
+import logging
 
 import P2Pro.video
 import P2Pro.P2Pro_cmd as P2Pro_CMD
 import P2Pro.recorder
+
+logging.basicConfig()
+logging.getLogger('P2Pro.recorder').setLevel(logging.INFO)
+logging.getLogger('P2Pro.P2Pro_cmd').setLevel(logging.INFO)
 
 try:
     vid = P2Pro.video.Video()

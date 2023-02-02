@@ -1,12 +1,14 @@
-import cv2
 import time
 import queue
+import logging
+
+import cv2
 import numpy as np
 
 P2Pro_resolution = (256, 384)
 P2Pro_fps = 25.0
 
-
+log = logging.getLogger(__name__)
 
 class Video:
     # queue 0 is for GUI, 1 is for recorder
@@ -22,12 +24,12 @@ class Video:
         dev_port = 0
         working_ids = []
         available_ids = []
-        print("Probing video capture ports...")
+        log.info("Probing video capture ports...")
         while len(non_working_ids) < 6:  # if there are more than 5 non working ports stop the testing.
             camera = cv2.VideoCapture(dev_port)
-            print(f"Testing video capture port {dev_port}... ", end='')
+            log.info(f"Testing video capture port {dev_port}... ", end='')
             if not camera.isOpened():
-                print("Not working.")
+                log.info("Not working.")
                 non_working_ids.append(dev_port)
             else:
                 is_reading, img = camera.read()
@@ -35,7 +37,7 @@ class Video:
                 h = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 fps = camera.get(cv2.CAP_PROP_FPS)
                 backend = camera.getBackendName()
-                print(f"Is present {'and working    ' if is_reading else 'but not working'} [{w}x{h} @ {fps:.1f} FPS ({backend})]")
+                log.info(f"Is present {'and working    ' if is_reading else 'but not working'} [{w}x{h} @ {fps:.1f} FPS ({backend})]")
                 if is_reading:
                     # print("Port %s is working and reads images (%s x %s)" %(dev_port,w,h))
                     working_ids.append((dev_port, (w, h), fps, backend))
@@ -56,7 +58,7 @@ class Video:
 
     def open(self, camera_id: int = -1):
         if camera_id == -1:
-            print("No camera ID specified, scanning... (This could take a few seconds)")
+            log.info("No camera ID specified, scanning... (This could take a few seconds)")
             camera_id = self.get_P2Pro_cap_id()
             if camera_id == None:
                 raise ConnectionError(f"Could not find camera module")

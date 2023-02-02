@@ -1,9 +1,12 @@
 import enum
 import struct
 import time
+import logging
 
 import usb.util
 import usb.core
+
+log = logging.getLogger(__name__)
 
 
 class PseudoColorTypes(enum.IntEnum):
@@ -52,6 +55,10 @@ class CmdCode(enum.IntEnum):
     shutter_vtemp = 0x840c
     prop_tpd_params = 0x8514
     cur_vtemp = 0x8b0d
+    preview_start = 0xc10f
+    preview_stop = 0x020f
+    y16_preview_start = 0x010a
+    y16_preview_stop = 0x020a
 
 
 class P2Pro:
@@ -97,7 +104,8 @@ class P2Pro:
         data1 = struct.pack("<H", cmd)
         data1 += struct.pack(">HI", p1, p2)
         data2 = struct.pack(">II", p3, p4)
-        print(f'l_cmd_w {0x9d00:#x} {data1.hex()} \nl_cmd_w {0x1d08:#x} {data2.hex()} ')
+        log.debug(f'l_cmd_w {0x9d00:#x} {data1.hex()}')
+        log.debug(f'l_cmd_w {0x1d08:#x} {data2.hex()} ')
         self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d00, data1)
         self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d08, data2)
         self._block_until_camera_ready()
@@ -106,11 +114,12 @@ class P2Pro:
         data1 = struct.pack("<H", cmd)
         data1 += struct.pack(">HI", p1, p2)
         data2 = struct.pack(">II", p3, dataLen)
-        print(f'l_cmd_r {0x9d00:#x} {data1.hex()} \nl_cmd_r {0x1d08:#x} {data2.hex()} ')
+        log.debug(f'l_cmd_r {0x9d00:#x} {data1.hex()}')
+        log.debug(f'l_cmd_r {0x1d08:#x} {data2.hex()} ')
         self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d00, data1)
         self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d08, data2)
         self._block_until_camera_ready()
-        print(f'l_cmd_r {0x1d10:#x} ...')
+        log.debug(f'l_cmd_r {0x1d10:#x} ...')
         res = self._dev.ctrl_transfer(0xC1, 0x44, 0x78, 0x1d10, dataLen)
         return bytes(res)
 
@@ -123,7 +132,7 @@ class P2Pro:
             # send 1d00 with cmd
             d = struct.pack("<H", cmd)
             d += struct.pack(">I2x", cmd_addr)
-            print(f's_cmd_w {0x1d00:#x} ({len(d):2}) {d.hex()}')
+            log.debug(f's_cmd_w {0x1d00:#x} ({len(d):2}) {d.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d00, d)
             self._block_until_camera_ready()
             return
@@ -139,7 +148,7 @@ class P2Pro:
             # Send initial "camera command"
             initial_data = struct.pack("<H", cmd)
             initial_data += struct.pack(">IH", cmd_addr + i, len(outer_chunk))
-            print(f's_cmd_w {0x9d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
+            log.debug(f's_cmd_w {0x9d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d00, initial_data)
             self._block_until_camera_ready()
 
@@ -151,18 +160,18 @@ class P2Pro:
                 # The logic for splitting up long vendor requests is a bit weird
                 # I just reimplemented it like Infiray did according to the USB trace. Don't want to cause unnecessary problems
                 if (to_send <= 8):
-                    print(f's_cmd_w {(0x1d08 + j):#x} ({len(inner_chunk):2}) {inner_chunk.hex()}')
+                    log.debug(f's_cmd_w {(0x1d08 + j):#x} ({len(inner_chunk):2}) {inner_chunk.hex()}')
                     self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d08 + j, inner_chunk)
                     self._block_until_camera_ready()
                 elif (to_send <= 64):
-                    print(f's_cmd_w {(0x9d08 + j):#x} ({len(inner_chunk[:-8]):2}) {inner_chunk[:-8].hex()}')
-                    print(
+                    log.debug(f's_cmd_w {(0x9d08 + j):#x} ({len(inner_chunk[:-8]):2}) {inner_chunk[:-8].hex()}')
+                    log.debug(
                         f's_cmd_w {(0x1d08 + j + to_send - 8):#x} ({len(inner_chunk[-8:]):2}) {inner_chunk[-8:].hex()}')
                     self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d08 + j, inner_chunk[:-8])
                     self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d08 + j + to_send - 8, inner_chunk[-8:])
                     self._block_until_camera_ready()
                 else:
-                    print(f's_cmd_w {(0x9d08 + j):#x} ({len(inner_chunk):2}) {inner_chunk.hex()}')
+                    log.debug(f's_cmd_w {(0x9d08 + j):#x} ({len(inner_chunk):2}) {inner_chunk.hex()}')
                     self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d08 + j, inner_chunk)
 
     # pretty similar to _standard_cmd_write, but a bit simpler
@@ -180,12 +189,12 @@ class P2Pro:
             # Send initial "camera command"
             initial_data = struct.pack("<H", cmd)
             initial_data += struct.pack(">IH", cmd_addr + i, to_read)
-            print(f's_cmd_r {0x1d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
+            log.debug(f's_cmd_r {0x1d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d00, initial_data)
             self._block_until_camera_ready()
 
             # read request (USB: 0xC1, 0x44)
-            print(f's_cmd_r {0x1d08:#x} ({to_read:2}) ...')
+            log.debug(f's_cmd_r {0x1d08:#x} ({to_read:2}) ...')
             res = self._dev.ctrl_transfer(0xC1, 0x44, 0x78, 0x1d08, to_read)
             result += bytes(res)
 
