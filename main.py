@@ -32,6 +32,7 @@ try:
     print(cam_cmd.pseudo_color_get())
     # cam_cmd.set_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL, 0)
     print(cam_cmd.get_prop_tpd_params(P2Pro_CMD.PropTpdParams.TPD_PROP_GAIN_SEL))
+    print(cam_cmd.get_device_info(P2Pro_CMD.DeviceInfoType.DEV_INFO_GET_PN))
 
     time.sleep(5)
     rec.stop()

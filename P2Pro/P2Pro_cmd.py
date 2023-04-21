@@ -43,6 +43,18 @@ class PropTpdParams(enum.IntEnum):
     TPD_PROP_GAIN_SEL = 5   # binary, 0-1, Gain select (0=low, 1=high)
 
 
+class DeviceInfoType(enum.IntEnum):
+    DEV_INFO_CHIP_ID = 0
+    DEV_INFO_FW_COMPILE_DATE = 1
+    DEV_INFO_DEV_QUALIFICATION = 2
+    DEV_INFO_IR_INFO = 3
+    DEV_INFO_PROJECT_INFO = 4
+    DEV_INFO_FW_BUILD_VERSION_INFO = 5
+    DEV_INFO_GET_PN = 6
+    DEV_INFO_GET_SN = 7
+    DEV_INFO_GET_SENSOR_ID = 8
+
+
 class CmdDir(enum.IntFlag):
     GET = 0x0000
     SET = 0x4000
@@ -51,6 +63,7 @@ class CmdDir(enum.IntFlag):
 class CmdCode(enum.IntEnum):
     sys_reset_to_rom = 0x0805
     spi_transfer = 0x8201
+    get_device_info = 0x8405
     pseudo_color = 0x8409
     shutter_vtemp = 0x840c
     prop_tpd_params = 0x8514
@@ -214,3 +227,7 @@ class P2Pro:
     def get_prop_tpd_params(self, tpd_param: PropTpdParams) -> int:
         res = self._long_cmd_read(CmdCode.prop_tpd_params, tpd_param)
         return struct.unpack(">H", res)[0]
+
+    def get_device_info(self, dev_info: DeviceInfoType):
+        res = self._standard_cmd_read(CmdCode.get_device_info, dev_info, 8)
+        return res
