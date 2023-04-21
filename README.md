@@ -24,8 +24,8 @@ Also, the camera video stream needs to be opened first before using the script t
 Still needs to be tested, but should work™
 
 ## Where to buy
-The cheapest vendor in Germany appears to be Peargear. [Link to the product page](https://www.pergear.de/products/infiray-p2-pro?ref=067mg).  
-Pergear also has shops for other countries, but I'm not sure if they're the cheapest there.
+The cheapest vendor in Germany appears to be [Peargear](https://www.pergear.de/products/infiray-p2-pro?ref=067mg).  
+Pergear also has [an international shop](https://www.pergear.com/products/infiray-p2-pro?ref=067mg) for other countries, but I'm not sure if they're the cheapest there.
 
 ## Additional Resources
 - [Review and teardown video by mikeselectricstuff](https://www.youtube.com/watch?v=YMQeXq1ujn0)
