@@ -1,12 +1,18 @@
+import sys
 import time
 import queue
 import logging
+from typing import Union
 
 import cv2
 import numpy as np
 
+if sys.platform.startswith('linux'):
+    import pyudev
+
 P2Pro_resolution = (256, 384)
 P2Pro_fps = 25.0
+P2Pro_usb_id = (0x0bda, 0x5830)  # vendor, product
 
 log = logging.getLogger(__name__)
 
@@ -50,13 +56,22 @@ class Video:
 
     # Sadly, Windows APIs / OpenCV is very limited, and the only way to detect the camera is by its characteristic resolution and framerate
     def get_P2Pro_cap_id(self):
+        # uses udev to get the usb vendor and product id, Linux only
+        if sys.platform.startswith('linux'):
+            for device in pyudev.Context().list_devices(subsystem='video4linux'):
+                if (int(device.get('ID_USB_VENDOR_ID'), 16), int(device.get('ID_USB_MODEL_ID'), 16)) == P2Pro_usb_id and \
+                        'capture' in device.get('ID_V4L_CAPABILITIES'):
+                    return device.get('DEVNAME')
+            return None
+
+        # Fallback that uses the resolution and framerate to identify the device
         working_ids, _, _ = self.list_cap_ids()
         for id in working_ids:
             if id[1] == P2Pro_resolution and id[2] == P2Pro_fps:
                 return id[0]
         return None
 
-    def open(self, camera_id: int = -1):
+    def open(self, camera_id: Union[int, str] = -1):
         if camera_id == -1:
             log.info("No camera ID specified, scanning... (This could take a few seconds)")
             camera_id = self.get_P2Pro_cap_id()
@@ -87,7 +102,6 @@ class Video:
                 continue
 
             self.video_running = True
-            frame = frame[0]
 
             # split video frame (top is pseudo color, bottom is temperature data)
             frame_mid_pos = int(len(frame) / 2)
