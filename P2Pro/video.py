@@ -1,4 +1,4 @@
-import sys
+import platform
 import time
 import queue
 import logging
@@ -7,12 +7,12 @@ from typing import Union
 import cv2
 import numpy as np
 
-if sys.platform.startswith('linux'):
+if platform.system() == 'Linux':
     import pyudev
 
 P2Pro_resolution = (256, 384)
 P2Pro_fps = 25.0
-P2Pro_usb_id = (0x0bda, 0x5830)  # vendor, product
+P2Pro_usb_id = (0x0bda, 0x5830)  # VID, PID
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class Video:
         log.info("Probing video capture ports...")
         while len(non_working_ids) < 6:  # if there are more than 5 non working ports stop the testing.
             camera = cv2.VideoCapture(dev_port)
-            log.info(f"Testing video capture port {dev_port}... ", end='')
+            log.info(f"Testing video capture port {dev_port}... ")
             if not camera.isOpened():
                 log.info("Not working.")
                 non_working_ids.append(dev_port)
@@ -55,9 +55,9 @@ class Video:
         return working_ids, available_ids, non_working_ids
 
     # Sadly, Windows APIs / OpenCV is very limited, and the only way to detect the camera is by its characteristic resolution and framerate
+    # On Linux, just use the VID/PID via udev
     def get_P2Pro_cap_id(self):
-        # uses udev to get the usb vendor and product id, Linux only
-        if sys.platform.startswith('linux'):
+        if platform.system() == 'Linux':
             for device in pyudev.Context().list_devices(subsystem='video4linux'):
                 if (int(device.get('ID_USB_VENDOR_ID'), 16), int(device.get('ID_USB_MODEL_ID'), 16)) == P2Pro_usb_id and \
                         'capture' in device.get('ID_V4L_CAPABILITIES'):
@@ -102,6 +102,10 @@ class Video:
                 continue
 
             self.video_running = True
+            
+            # On Windows, with RGB conversion turned off, OpenCV returns the image as a 2D array with size [1][<imageLen>]. Turn into 1D array. 
+            if platform.system() == 'Windows':
+                frame = frame[0]
 
             # split video frame (top is pseudo color, bottom is temperature data)
             frame_mid_pos = int(len(frame) / 2)
@@ -137,5 +141,7 @@ if __name__ == "__main__":
     # start = time.time()
     # print("P2 Pro capture ID:", get_P2Pro_cap_id())
     # print(time.time() - start)
-    Video().open(1)
+    logging.basicConfig()
+    log.setLevel(logging.INFO)
+    Video().open()
     pass
