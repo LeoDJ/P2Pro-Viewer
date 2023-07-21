@@ -19,6 +19,7 @@ from kivy.lang import Builder
 from kivy.base import EventLoop
 from kivy.core.window import Window
 
+from kivymd.app import MDApp
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -70,7 +71,7 @@ class Scale(Widget):
                 Line(points=[position[0] + 10, position[1], position[0] + self.width, position[1]], width=1)
 
 
-class GuiApp(App):
+class GuiApp(MDApp):
     def on_start(self):
         # print(dir(self.root.ids))
         print(self.root.ids.keys())
@@ -93,6 +94,7 @@ class GuiApp(App):
     # dev build function, reloads on .kv change
     def build(self):
         self.title = "P2 Pro Viewer"
+        self.theme_cls.theme_style = "Dark"
         # self.on_start()
         o = Observer()
         o.schedule(KvHandler(self.update, TARGET), PATH)

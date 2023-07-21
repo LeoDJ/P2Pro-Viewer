@@ -23,7 +23,7 @@
 #             rgb: 1,1,1
 
 
-BoxLayout:
+MDBoxLayout:
     orientation: 'horizontal'
 
     # Image widget
@@ -88,7 +88,7 @@ BoxLayout:
     # Sidebar layout
     # BoxLayout:
         # orientation: 'vertical'
-    GridLayout:
+    MDGridLayout:
         cols: 1
         size_hint_x: None
         width: 280
@@ -97,11 +97,12 @@ BoxLayout:
         # row_force_default: True
         # row_default_height: sidebar_row_height
 
-        Label:
+        MDLabel:
             text: 'P2 Pro Viewer'
             size_hint_y: None
             size: self.texture_size
             font_size: 32
+            halign: 'center'
             canvas.before:
                 Color:
                     rgba: 0, 0.4, 0, 1
@@ -112,7 +113,7 @@ BoxLayout:
                     size: self.width + 2 * sidebar_pad, self.height + sidebar_pad
 
         # Sliders
-        Slider:
+        MDSlider:
             id: brightness_slider
             min: -1
             max: 1
@@ -120,13 +121,14 @@ BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: 20
-            cursor_size: slider_cursor_size
-            background_width: 15
-        Label:
+            # cursor_size: slider_cursor_size
+            # background_width: 15
+        MDLabel:
             text: 'Brightness'
             size_hint_y: None
             height: 20
-        Slider:
+            halign: 'center'
+        MDSlider:
             id: contrast_slider
             min: 0
             max: 2
@@ -134,72 +136,93 @@ BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: 20
-            cursor_size: slider_cursor_size
-            background_width: 15
-        Label:
+            # cursor_size: slider_cursor_size
+            # background_width: 15
+        MDLabel:
             text: 'Contrast'
             size_hint_y: None
             height: 20
+            halign: 'center'
 
         # Temperature range selection
-        GridLayout:
+        MDGridLayout:
             cols: 3
-            height: sidebar_row_height
-            size_hint_y: None
-            Label:
-                text: 'High Temperature Range:'
-                size: self.texture_size
-                size_hint_x: None
-            # ToggleButton:
-            #     text: 'Normal'
-            #     group: 'temp_mode'
-            #     state: 'down'
-            # ToggleButton:
-            #     text: 'High'
-            #     group: 'temp_mode'
-            Switch:
+            # height: sidebar_row_height
+            # size_hint_y: None
+            adaptive_height: True
+            MDLabel:
+                text: 'Temperature Range:'
+                # adaptive_width: True
+            MDSwitch:
                 id: switch_high_temp
+                height: sidebar_row_height
+            # MDSegmentedControl:
+            #     size_hint_x: 0.8
+            #     # adaptive_width: True
+            #     MDSegmentedControlItem:
+            #         adaptive_width: True
+            #         text: 'Normal'
+            #         active: True
+            #     MDSegmentedControlItem:
+            #         adaptive_width: True
+            #         # size_hint_x: 0.04
+            #         text: 'High'
 
         # Palette selection
-        GridLayout:
+        MDGridLayout:
             cols: 2
             height: sidebar_row_height
             size_hint_y: None
-            Label:
+            MDLabel:
                 text: 'Palette:  '
-                size: self.texture_size
-                size_hint_x: None
-            Spinner:
+                # size: self.texture_size
+                # size_hint_x: None
+            MDDropDownItem:
                 # size_hint: None, None
                 # size: 100, 44
                 # pos_hint: {'center': (.5, .5)}
+                id: select_palette
                 text: 'Home'
-                values: 'Home', 'Work', 'Other', 'Custom'
-                on_text:
-                    print("The spinner {} has text {}".format(self, self.text))
+                # values: 'Home', 'Work', 'Other', 'Custom'
+                # on_text:
+                #     print("The spinner {} has text {}".format(self, self.text))
+                on_release: app.menu.open() # TODO
 
-        Label:
+        MDLabel:
             id: filler
 
         # Transport buttons
-        BoxLayout:
+        MDBoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: sidebar_row_height
             spacing: 5
-            ToggleButton:
-                id: btn_rec
-                text: '🔴'
-                font_name: 'seguiemj'
-                # on_press: self.text = '⬛️'
-                on_state: 
-                    self.text = '⬛️' if self.state == 'down' else '🔴'
-                    print("Start" if self.state == 'down' else "Stop", "recording") #
-            Button:
+            # ToggleButton:
+            #     id: btn_rec
+            #     text: '🔴'
+            #     font_name: 'seguiemj'
+            #     # on_press: self.text = '⬛️'
+            #     on_state: 
+            #         self.text = '⬛️' if self.state == 'down' else '🔴'
+            #         print("Start" if self.state == 'down' else "Stop", "recording") #
+            # Button:
+            #     id: btn_photo
+            #     text: '📸'
+            #     font_name: 'seguiemj'
+            #     on_press: print("Cheeeese!")
+            MDFillRoundFlatIconButton:
+                text: 'Record'
+                icon: 'record'
+                size_hint_x: 0.5
+                on_press: 
+                    self.text = 'Stop'
+                    self.icon = 'stop'
+                    self.md_bg_color = 'red'
+            MDFillRoundFlatIconButton:
                 id: btn_photo
-                text: '📸'
-                font_name: 'seguiemj'
-                on_press: print("Cheeeese!")
+                text: 'Photo'
+                icon: 'camera'
+                size_hint_x: 0.5
         
         # Timer and attribution
         BoxLayout:
