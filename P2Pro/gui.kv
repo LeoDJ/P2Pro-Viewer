@@ -77,6 +77,7 @@ BoxLayout:
             padding: 2
             halign: 'center'
             multiline: False
+            input_filter: 'float'   # TODO: °C extern
         ToggleButton:
             id: btn_auto_min
             text: 'Auto'
@@ -112,42 +113,64 @@ BoxLayout:
                     size: self.width + 2 * sidebar_pad, self.height + sidebar_pad
 
         # Sliders
-        Slider:
-            id: brightness_slider
-            min: -1
-            max: 1
-            value: 0
+        # Slider:
+        #     id: brightness_slider
+        #     min: -1
+        #     max: 1
+        #     value: 0
+        #     orientation: 'horizontal'
+        #     size_hint_y: None
+        #     height: 20
+        #     cursor_size: slider_cursor_size
+        #     background_width: 15
+        # Label:
+        #     text: 'Brightness'
+        #     size_hint_y: None
+        #     height: 20
+        # Slider:
+        #     id: contrast_slider
+        #     min: 0
+        #     max: 2
+        #     value: 1
+        #     orientation: 'horizontal'
+        #     size_hint_y: None
+        #     height: 20
+        #     cursor_size: slider_cursor_size
+        #     background_width: 15
+        # Label:
+        #     text: 'Contrast'
+        #     size_hint_y: None
+        #     height: 20
+        
+        # NUC Shutter
+        BoxLayout:
             orientation: 'horizontal'
+            spacing: sidebar_pad
             size_hint_y: None
-            height: 20
-            cursor_size: slider_cursor_size
-            background_width: 15
-        Label:
-            text: 'Brightness'
-            size_hint_y: None
-            height: 20
-        Slider:
-            id: contrast_slider
-            min: 0
-            max: 2
-            value: 1
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: 20
-            cursor_size: slider_cursor_size
-            background_width: 15
-        Label:
-            text: 'Contrast'
-            size_hint_y: None
-            height: 20
+            height: sidebar_row_height
+            # canvas.after:
+            #     Line:
+            #         points: self.x, self.y + self.height + 3, self.x + self.width, self.y + self.height + 3
+            #         width: 1
+            Label:
+                text: 'NUC Shutter  '
+                size: self.texture_size
+                size_hint_x: None
+            Button:
+                text: 'Trigger'
+                # font_name: 'seguiemj'
+            ToggleButton:
+                text: 'Auto'
+                state: 'down'
 
+                
         # Temperature range selection
         GridLayout:
             cols: 3
             height: sidebar_row_height
             size_hint_y: None
             Label:
-                text: 'High Temperature Range:'
+                text: 'High Temperature Range      '
                 size: self.texture_size
                 size_hint_x: None
             # ToggleButton:
@@ -163,10 +186,11 @@ BoxLayout:
         # Palette selection
         GridLayout:
             cols: 2
+            spacing: 20
             height: sidebar_row_height
             size_hint_y: None
             Label:
-                text: 'Palette:  '
+                text: 'Palette'
                 size: self.texture_size
                 size_hint_x: None
             Spinner:
@@ -177,6 +201,91 @@ BoxLayout:
                 values: 'Home', 'Work', 'Other', 'Custom'
                 on_text:
                     print("The spinner {} has text {}".format(self, self.text))
+
+        # Rotate
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: sidebar_pad
+            size_hint_y: None
+            height: sidebar_row_height
+            Label:
+                text: 'Rotate / Flip     '
+                size: self.texture_size
+                size_hint_x: None
+            Button:
+                text: '↪️'
+                font_name: 'seguiemj'
+            Button:
+                text: '↩️'
+                font_name: 'seguiemj'
+            Button:
+                text: '↔️'
+                font_name: 'seguiemj'
+            Button:
+                text: '↕️'
+                font_name: 'seguiemj'
+
+        # Calibration values       # TODO: make prettier
+        GridLayout:
+            cols: 3
+            # size_hint_y: None
+            row_force_default: True
+            row_default_height: sidebar_row_height
+            spacing: sidebar_pad
+            padding: 0, 20, 0, 0
+            Label:
+                text: 'Emissivity'
+                size: self.texture_size
+                size_hint_x: None
+                # text_size: self.size    # expand text area to maximum possible size, so aligns work
+                # valign: 'center'
+            TextInput:
+                id: input_emissivity
+                text: '0.95'
+                size_hint: None, None
+                height: self.minimum_height
+                halign: 'right'
+                multiline: False
+                input_filter: 'float'
+            Label:
+                text: ''
+                # size: 20, self.texture_size[1]
+                width: 20
+                size_hint_x: None
+
+            Label:
+                text: 'Distance'
+                size: self.texture_size
+                size_hint_x: None
+            TextInput:
+                id: input_distance
+                text: '0.2'
+                size_hint: None, None
+                height: self.minimum_height
+                halign: 'right'
+                multiline: False
+                input_filter: 'float'
+            Label:
+                text: 'm'
+                size: self.texture_size
+                size_hint_x: None
+
+            Label:
+                text: 'Ambient Temperature '
+                size: self.texture_size
+                size_hint_x: None
+            TextInput:
+                id: input_temperature
+                text: '25'
+                size_hint: None, None
+                height: self.minimum_height
+                halign: 'right'
+                multiline: False
+                input_filter: 'float'
+            Label:
+                text: '°C'
+                size: self.texture_size
+                size_hint_x: None
 
         Label:
             id: filler
