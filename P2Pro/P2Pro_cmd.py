@@ -136,15 +136,25 @@ class P2Pro:
         res = self._dev.ctrl_transfer(0xC1, 0x44, 0x78, 0x1d10, dataLen)
         return bytes(res)
 
-    def _standard_cmd_write(self, cmd: int, cmd_addr: int = 0, data: bytes = b'\x00', dataLen: int = -1):
+    def _standard_cmd_write(self, cmd: int, cmd_param: int = 0, data: bytes = b'\x00', dataLen: int = -1):
+        """
+        Sends a "standard CMD write" packet
+
+        :param cmd: 2 byte CMD code
+        :param cmd_param: 4 byte parameter that gets sent together with CMD (for spi_* commands, the address needs to be passed in as big-endian)
+        :param data: payload
+        :param dataLen: payload length
+        """
         if dataLen == -1:
             dataLen = len(data)
+
+        cmd_param = struct.unpack('<I', struct.pack('>I', cmd_param))[0]    # switch endinanness
 
         # If there is no payload, send the 8 byte command immediately
         if (dataLen == 0 or data == b'\x00'):
             # send 1d00 with cmd
             d = struct.pack("<H", cmd)
-            d += struct.pack(">I2x", cmd_addr)
+            d += struct.pack(">I2x", cmd_param)
             log.debug(f's_cmd_w {0x1d00:#x} ({len(d):2}) {d.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d00, d)
             self._block_until_camera_ready()
@@ -155,12 +165,13 @@ class P2Pro:
 
         # A "camera command" can be 256 bytes long max, but we can split the data and
         # send more with an incremented address parameter (only spi_read/write actually uses that afaik)
+        # (adress parameter is big endian, but others are either little endian or only one byte in initial_data[2])
         for i in range(0, dataLen, outer_chunk_size):
             outer_chunk = data[i:i+outer_chunk_size]
 
             # Send initial "camera command"
             initial_data = struct.pack("<H", cmd)
-            initial_data += struct.pack(">IH", cmd_addr + i, len(outer_chunk))
+            initial_data += struct.pack(">IH", cmd_param + i, len(outer_chunk))
             log.debug(f's_cmd_w {0x9d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x9d00, initial_data)
             self._block_until_camera_ready()
@@ -189,9 +200,19 @@ class P2Pro:
 
     # pretty similar to _standard_cmd_write, but a bit simpler
 
-    def _standard_cmd_read(self, cmd: int, cmd_addr: int = 0, dataLen: int = 0) -> bytes:
+    def _standard_cmd_read(self, cmd: int, cmd_param: int = 0, dataLen: int = 0) -> bytes:
+        """
+        Sends a "standard CMD read" packet
+
+        :param cmd: 2 byte CMD code
+        :param cmd_param: 4 byte parameter that gets sent together with CMD (for spi_* commands, the address needs to be passed in as big-endian)
+        :param dataLen: read length
+        :return: bytes object containing the read result
+        """
         if dataLen == 0:
             return b''
+
+        cmd_param = struct.unpack('<I', struct.pack('>I', cmd_param))[0]    # switch endinanness
 
         result = b''
         outer_chunk_size = 0x100
@@ -201,7 +222,7 @@ class P2Pro:
             to_read = min(dataLen - i, outer_chunk_size)
             # Send initial "camera command"
             initial_data = struct.pack("<H", cmd)
-            initial_data += struct.pack(">IH", cmd_addr + i, to_read)
+            initial_data += struct.pack(">IH", cmd_param + i, to_read)
             log.debug(f's_cmd_r {0x1d00:#x} ({len(initial_data):2}) {initial_data.hex()}')
             self._dev.ctrl_transfer(0x41, 0x45, 0x78, 0x1d00, initial_data)
             self._block_until_camera_ready()
@@ -214,7 +235,6 @@ class P2Pro:
         return result
 
     def pseudo_color_set(self, preview_path: int, color_type: PseudoColorTypes):
-        # preview_path probably gets packed right after the command, but both RevEng insights are inconclusive
         self._standard_cmd_write((CmdCode.pseudo_color | CmdDir.SET), preview_path, struct.pack("<B", color_type))
 
     def pseudo_color_get(self, preview_path: int = 0) -> PseudoColorTypes:
