@@ -53,6 +53,7 @@ class DeviceInfoType(enum.IntEnum):
     DEV_INFO_GET_PN = 6
     DEV_INFO_GET_SN = 7
     DEV_INFO_GET_SENSOR_ID = 8
+DeviceInfoType_len = [8, 8, 8, 26, 4, 50, 48, 16, 4]    # crudely implement the different lengths of the different types
 
 
 class CmdDir(enum.IntFlag):
@@ -249,5 +250,5 @@ class P2Pro:
         return struct.unpack(">H", res)[0]
 
     def get_device_info(self, dev_info: DeviceInfoType):
-        res = self._standard_cmd_read(CmdCode.get_device_info, dev_info, 8)
+        res = self._standard_cmd_read(CmdCode.get_device_info, dev_info, DeviceInfoType_len[dev_info])
         return res
