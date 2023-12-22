@@ -114,7 +114,7 @@ class Video:
 
             # convert buffers to numpy arrays
             yuv_picture = np.frombuffer(picture_data, dtype=np.uint8).reshape((P2Pro_resolution[1] // 2, P2Pro_resolution[0], 2))
-            rgb_picture = cv2.cvtColor(yuv_picture, cv2.COLOR_YUV2RGB_YUY2)
+            rgb_picture = cv2.cvtColor(yuv_picture, cv2.COLOR_YUV2BGR_YUY2)
             thermal_picture_16 = np.frombuffer(thermal_data, dtype=np.uint16).reshape((P2Pro_resolution[1] // 2, P2Pro_resolution[0]))
 
             # pack parsed frame data into object
